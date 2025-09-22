@@ -1,0 +1,91 @@
+version: '3.8'
+
+services:
+  # Application service for production
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: runtime
+    container_name: acquisitions-app-prod
+    ports:
+      - "3000:3000"
+      
+    env_file:
+        - .env.production
+      # - NODE_ENV=production
+      # - PORT=3000
+      # - LOG_LEVEL=info
+      # - DATABASE_URL=${DATABASE_URL}
+      # - ARCJET_KEY=${ARCJET_KEY}
+      # - ENABLE_LOGGING=true
+      # - DEBUG=false
+      # - TRUST_PROXY=true
+    restart: unless-stopped
+    networks:
+      - acquisitions-network
+    # Production security and resource limits
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 512M
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+        window: 120s
+    # Health check for production monitoring
+    healthcheck:
+      test: ["CMD-SHELL", "node --eval 'fetch(\"http://localhost:3000/health\").then(() => process.exit(0)).catch(() => process.exit(1))'"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    # Security options
+    security_opt:
+      - no-new-privileges:true
+    read_only: true
+    tmpfs:
+      - /tmp:size=100M,noexec,nosuid,nodev
+
+  # Optional: Reverse proxy for production (uncomment if needed)
+  # nginx:
+  #   image: nginx:alpine
+  #   container_name: acquisitions-nginx
+  #   ports:
+  #     - "80:80"
+  #     - "443:443"
+  #   volumes:
+  #     - ./nginx.conf:/etc/nginx/nginx.conf:ro
+  #     - ./ssl:/etc/ssl:ro
+  #   depends_on:
+  #     - app
+  #   restart: unless-stopped
+  #   networks:
+  #     - acquisitions-network
+
+  # Optional: Monitoring and logging (uncomment if needed)
+  # watchtower:
+  #   image: containrrr/watchtower
+  #   container_name: acquisitions-watchtower
+  #   volumes:
+  #     - /var/run/docker.sock:/var/run/docker.sock
+  #   environment:
+  #     - WATCHTOWER_CLEANUP=true
+  #     - WATCHTOWER_POLL_INTERVAL=3600
+  #   restart: unless-stopped
+
+networks:
+  acquisitions-network:
+    driver: bridge
+
+# Optional: Add secrets management for production
+secrets:
+  database_url:
+    external: true
+  arcjet_key:
+    external: true
