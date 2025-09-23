@@ -9,6 +9,7 @@ This directory contains CI/CD workflows for the Acquisitions API project.
 - **Triggers**: Push/PR to `master` and `staging` branches
 - **Purpose**: Ensures code quality and formatting consistency
 - **Actions**:
+  - Installs dependencies with `npm install`
   - Runs ESLint with `npm run lint`
   - Runs Prettier format check with `npm run format:check`
   - Provides clear error messages and fix suggestions
@@ -19,6 +20,7 @@ This directory contains CI/CD workflows for the Acquisitions API project.
 - **Triggers**: Push/PR to `master` and `staging` branches
 - **Purpose**: Runs test suite and generates coverage reports
 - **Actions**:
+  - Installs dependencies with `npm install`
   - Runs tests with `npm test`
   - Sets required environment variables (`NODE_ENV=test`, `NODE_OPTIONS=--experimental-vm-modules`)
   - Uploads coverage reports as artifacts (30-day retention)
