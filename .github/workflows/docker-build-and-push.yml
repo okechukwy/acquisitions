@@ -29,6 +29,14 @@ jobs:
         registry: ${{ env.REGISTRY }}
         username: ${{ secrets.DOCKER_USERNAME }}
         password: ${{ secrets.DOCKER_PASSWORD }}
+      env:
+        DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+        
+    - name: Verify Docker Hub repository
+      run: |
+        echo "Verifying Docker Hub repository: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}"
+        echo "Username: ${{ secrets.DOCKER_USERNAME }}"
+        echo "Repository should exist at: https://hub.docker.com/r/${{ env.IMAGE_NAME }}"
         
     - name: Extract metadata
       id: meta
@@ -97,10 +105,17 @@ jobs:
           echo "❌ **Docker build failed**" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### 🔍 Troubleshooting" >> $GITHUB_STEP_SUMMARY
-          echo "1. Check the build logs above for specific error details" >> $GITHUB_STEP_SUMMARY
-          echo "2. Verify Dockerfile syntax and dependencies" >> $GITHUB_STEP_SUMMARY
-          echo "3. Ensure all required files are present in the repository" >> $GITHUB_STEP_SUMMARY
-          echo "4. Check Docker Hub credentials in repository secrets" >> $GITHUB_STEP_SUMMARY
+          echo "1. **Docker Hub Authentication Issues:**" >> $GITHUB_STEP_SUMMARY
+          echo "   - Ensure Docker Hub repository \`${{ env.IMAGE_NAME }}\` exists" >> $GITHUB_STEP_SUMMARY
+          echo "   - Verify \`DOCKER_USERNAME\` and \`DOCKER_PASSWORD\` secrets are correct" >> $GITHUB_STEP_SUMMARY
+          echo "   - Use Personal Access Token instead of password for better security" >> $GITHUB_STEP_SUMMARY
+          echo "   - Check repository permissions on Docker Hub" >> $GITHUB_STEP_SUMMARY
+          echo "2. **Repository Setup:**" >> $GITHUB_STEP_SUMMARY
+          echo "   - Create repository at: https://hub.docker.com/r/${{ env.IMAGE_NAME }}" >> $GITHUB_STEP_SUMMARY
+          echo "   - Ensure repository is public or you have push permissions" >> $GITHUB_STEP_SUMMARY
+          echo "3. **Build Issues:**" >> $GITHUB_STEP_SUMMARY
+          echo "   - Check Dockerfile syntax and dependencies" >> $GITHUB_STEP_SUMMARY
+          echo "   - Ensure all required files are present in the repository" >> $GITHUB_STEP_SUMMARY
         fi
         
         echo "" >> $GITHUB_STEP_SUMMARY
