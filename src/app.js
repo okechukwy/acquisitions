@@ -1,6 +1,5 @@
 import express from 'express';
 import logger from '#config/logger.js';
-//import logger from './config/logger.js';
 import helmet from 'helmet';
 import morgan from 'morgan';
 import cors from 'cors';
