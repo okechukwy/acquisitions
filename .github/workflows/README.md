@@ -5,6 +5,7 @@ This directory contains CI/CD workflows for the Acquisitions API project.
 ## Workflows
 
 ### 1. Lint and Format Check (`lint-and-format.yml`)
+
 - **Triggers**: Push/PR to `master` and `staging` branches
 - **Purpose**: Ensures code quality and formatting consistency
 - **Actions**:
@@ -14,6 +15,7 @@ This directory contains CI/CD workflows for the Acquisitions API project.
   - Generates workflow summary with results
 
 ### 2. Tests (`tests.yml`)
+
 - **Triggers**: Push/PR to `master` and `staging` branches
 - **Purpose**: Runs test suite and generates coverage reports
 - **Actions**:
@@ -23,6 +25,7 @@ This directory contains CI/CD workflows for the Acquisitions API project.
   - Generates detailed test summary
 
 ### 3. Docker Build and Push (`docker-build-and-push.yml`)
+
 - **Triggers**: Push to `master` branch or manual dispatch
 - **Purpose**: Builds and pushes production Docker images
 - **Actions**:

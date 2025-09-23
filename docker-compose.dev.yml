@@ -6,17 +6,17 @@ services:
     image: neondatabase/neon_local:latest
     container_name: acquisitions-neon-local
     ports:
-      - "5432:5432"
+      - '5432:5432'
     env_file:
       - .env.development
     environment:
-      DELETE_BRANCH: true  # Ephemeral branches for development
+      DELETE_BRANCH: true # Ephemeral branches for development
     # volumes:
-      # Optional: For persistent branches per git branch
-      # - ./.neon_local/:/tmp/.neon_local
-      # - ./.git/HEAD:/tmp/.git/HEAD:ro
+    # Optional: For persistent branches per git branch
+    # - ./.neon_local/:/tmp/.neon_local
+    # - ./.git/HEAD:/tmp/.git/HEAD:ro
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -h localhost -p 5432 -U neon"]
+      test: ['CMD-SHELL', 'pg_isready -h localhost -p 5432 -U neon']
       interval: 10s
       timeout: 5s
       retries: 5
@@ -31,10 +31,10 @@ services:
       dockerfile: Dockerfile
     container_name: acquisitions-app-dev
     ports:
-      - "3000:3000"
+      - '3000:3000'
     env_file:
       - .env.development
-    
+
     depends_on:
       neon-local:
         condition: service_healthy

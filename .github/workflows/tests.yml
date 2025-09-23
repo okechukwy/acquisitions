@@ -2,86 +2,86 @@ name: Tests
 
 on:
   push:
-    branches: [ master, staging ]
+    branches: [master, staging]
   pull_request:
-    branches: [ master, staging ]
+    branches: [master, staging]
 
 jobs:
   test:
     runs-on: ubuntu-latest
-    
+
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-      
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '20.x'
-        cache: 'npm'
-        
-    - name: Install dependencies
-      run: npm ci
-      
-    - name: Run tests
-      id: test
-      env:
-        NODE_ENV: test
-        NODE_OPTIONS: --experimental-vm-modules
-        DATABASE_URL: postgresql://test:test@localhost:5432/test_db
-      run: |
-        echo "Running tests with coverage..."
-        if npm test; then
-          echo "✅ All tests passed"
-          echo "test_status=success" >> $GITHUB_OUTPUT
-        else
-          echo "❌ Tests failed"
-          echo "test_status=failed" >> $GITHUB_OUTPUT
-          echo "::error::Some tests failed. Check the test output above for details."
-        fi
-        
-    - name: Upload coverage reports
-      if: always()
-      uses: actions/upload-artifact@v4
-      with:
-        name: coverage-report
-        path: coverage/
-        retention-days: 30
-        
-    - name: Generate test summary
-      if: always()
-      run: |
-        echo "## 🧪 Test Results" >> $GITHUB_STEP_SUMMARY
-        echo "" >> $GITHUB_STEP_SUMMARY
-        
-        if [ "${{ steps.test.outputs.test_status }}" == "success" ]; then
-          echo "✅ **All tests passed successfully!**" >> $GITHUB_STEP_SUMMARY
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run tests
+        id: test
+        env:
+          NODE_ENV: test
+          NODE_OPTIONS: --experimental-vm-modules
+          DATABASE_URL: postgresql://test:test@localhost:5432/test_db
+        run: |
+          echo "Running tests with coverage..."
+          if npm test; then
+            echo "✅ All tests passed"
+            echo "test_status=success" >> $GITHUB_OUTPUT
+          else
+            echo "❌ Tests failed"
+            echo "test_status=failed" >> $GITHUB_OUTPUT
+            echo "::error::Some tests failed. Check the test output above for details."
+          fi
+
+      - name: Upload coverage reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: coverage/
+          retention-days: 30
+
+      - name: Generate test summary
+        if: always()
+        run: |
+          echo "## 🧪 Test Results" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "### 📊 Coverage Report" >> $GITHUB_STEP_SUMMARY
-          echo "Coverage reports have been generated and uploaded as artifacts." >> $GITHUB_STEP_SUMMARY
-          echo "- **Retention**: 30 days" >> $GITHUB_STEP_SUMMARY
-          echo "- **Location**: \`coverage/\` directory" >> $GITHUB_STEP_SUMMARY
-          echo "- **Formats**: HTML, LCOV, JSON" >> $GITHUB_STEP_SUMMARY
-        else
-          echo "❌ **Some tests failed**" >> $GITHUB_STEP_SUMMARY
+
+          if [ "${{ steps.test.outputs.test_status }}" == "success" ]; then
+            echo "✅ **All tests passed successfully!**" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "### 📊 Coverage Report" >> $GITHUB_STEP_SUMMARY
+            echo "Coverage reports have been generated and uploaded as artifacts." >> $GITHUB_STEP_SUMMARY
+            echo "- **Retention**: 30 days" >> $GITHUB_STEP_SUMMARY
+            echo "- **Location**: \`coverage/\` directory" >> $GITHUB_STEP_SUMMARY
+            echo "- **Formats**: HTML, LCOV, JSON" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ **Some tests failed**" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "### 🔍 Troubleshooting" >> $GITHUB_STEP_SUMMARY
+            echo "1. Check the test output above for specific failure details" >> $GITHUB_STEP_SUMMARY
+            echo "2. Ensure all environment variables are properly set" >> $GITHUB_STEP_SUMMARY
+            echo "3. Verify test database configuration" >> $GITHUB_STEP_SUMMARY
+            echo "4. Run tests locally with: \`npm test\`" >> $GITHUB_STEP_SUMMARY
+          fi
+
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "### 🔍 Troubleshooting" >> $GITHUB_STEP_SUMMARY
-          echo "1. Check the test output above for specific failure details" >> $GITHUB_STEP_SUMMARY
-          echo "2. Ensure all environment variables are properly set" >> $GITHUB_STEP_SUMMARY
-          echo "3. Verify test database configuration" >> $GITHUB_STEP_SUMMARY
-          echo "4. Run tests locally with: \`npm test\`" >> $GITHUB_STEP_SUMMARY
-        fi
-        
-        echo "" >> $GITHUB_STEP_SUMMARY
-        echo "### 🛠️ Test Configuration" >> $GITHUB_STEP_SUMMARY
-        echo "- **Node.js**: 20.x" >> $GITHUB_STEP_SUMMARY
-        echo "- **Environment**: \`NODE_ENV=test\`" >> $GITHUB_STEP_SUMMARY
-        echo "- **Node Options**: \`--experimental-vm-modules\`" >> $GITHUB_STEP_SUMMARY
-        echo "- **Test Runner**: Jest" >> $GITHUB_STEP_SUMMARY
-        echo "- **Coverage**: Enabled with V8 provider" >> $GITHUB_STEP_SUMMARY
-        
-    - name: Fail workflow if tests failed
-      if: steps.test.outputs.test_status == 'failed'
-      run: |
-        echo "❌ Tests failed. Please fix the failing tests before merging."
-        exit 1
+          echo "### 🛠️ Test Configuration" >> $GITHUB_STEP_SUMMARY
+          echo "- **Node.js**: 20.x" >> $GITHUB_STEP_SUMMARY
+          echo "- **Environment**: \`NODE_ENV=test\`" >> $GITHUB_STEP_SUMMARY
+          echo "- **Node Options**: \`--experimental-vm-modules\`" >> $GITHUB_STEP_SUMMARY
+          echo "- **Test Runner**: Jest" >> $GITHUB_STEP_SUMMARY
+          echo "- **Coverage**: Enabled with V8 provider" >> $GITHUB_STEP_SUMMARY
+
+      - name: Fail workflow if tests failed
+        if: steps.test.outputs.test_status == 'failed'
+        run: |
+          echo "❌ Tests failed. Please fix the failing tests before merging."
+          exit 1

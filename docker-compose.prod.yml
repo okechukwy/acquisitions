@@ -9,10 +9,10 @@ services:
       target: runtime
     container_name: acquisitions-app-prod
     ports:
-      - "3000:3000"
-      
+      - '3000:3000'
+
     env_file:
-        - .env.production
+      - .env.production
       # - NODE_ENV=production
       # - PORT=3000
       # - LOG_LEVEL=info
@@ -40,7 +40,11 @@ services:
         window: 120s
     # Health check for production monitoring
     healthcheck:
-      test: ["CMD-SHELL", "node --eval 'fetch(\"http://localhost:3000/health\").then(() => process.exit(0)).catch(() => process.exit(1))'"]
+      test:
+        [
+          'CMD-SHELL',
+          'node --eval ''fetch("http://localhost:3000/health").then(() => process.exit(0)).catch(() => process.exit(1))''',
+        ]
       interval: 30s
       timeout: 10s
       retries: 3

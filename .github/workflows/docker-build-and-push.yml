@@ -2,12 +2,12 @@ name: Docker Build and Push
 
 on:
   push:
-    branches: [ master ]
+    branches: [master]
   workflow_dispatch:
 
 env:
   REGISTRY: docker.io
-  IMAGE_NAME: okechukwy/acquisitions
+  IMAGE_NAME: ${{secrets.DOCKER_USERNAME}}/kubernetes-demo-api
 
 jobs:
   build-and-push:
@@ -15,113 +15,113 @@ jobs:
     permissions:
       contents: read
       packages: write
-      
+
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-      
-    - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v3
-      
-    - name: Log in to Docker Hub
-      uses: docker/login-action@v3
-      with:
-        registry: ${{ env.REGISTRY }}
-        username: ${{ secrets.DOCKER_USERNAME }}
-        password: ${{ secrets.DOCKER_PASSWORD }}
-      env:
-        DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
-        
-    - name: Verify Docker Hub repository
-      run: |
-        echo "Verifying Docker Hub repository: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}"
-        echo "Username: ${{ secrets.DOCKER_USERNAME }}"
-        echo "Repository should exist at: https://hub.docker.com/r/${{ env.IMAGE_NAME }}"
-        
-    - name: Extract metadata
-      id: meta
-      uses: docker/metadata-action@v5
-      with:
-        images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-        tags: |
-          type=ref,event=branch
-          type=ref,event=pr
-          type=sha,prefix={{branch}}-
-          type=raw,value=latest,enable={{is_default_branch}}
-          type=raw,value=prod-{{date 'YYYYMMDD-HHmmss'}},enable={{is_default_branch}}
-        labels: |
-          org.opencontainers.image.title=Acquisitions API
-          org.opencontainers.image.description=Express.js API with User CRUD operations
-          org.opencontainers.image.vendor=Okechukwy
-          org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
-          org.opencontainers.image.version=${{ github.ref_name }}
-          org.opencontainers.image.created=${{ github.event.head_commit.timestamp }}
-          org.opencontainers.image.revision=${{ github.sha }}
-          
-    - name: Build and push Docker image
-      id: build
-      uses: docker/build-push-action@v5
-      with:
-        context: .
-        platforms: linux/amd64,linux/arm64
-        push: true
-        tags: ${{ steps.meta.outputs.tags }}
-        labels: ${{ steps.meta.outputs.labels }}
-        cache-from: type=gha
-        cache-to: type=gha,mode=max
-        
-    - name: Generate deployment summary
-      if: always()
-      run: |
-        echo "## 🐳 Docker Build and Push Results" >> $GITHUB_STEP_SUMMARY
-        echo "" >> $GITHUB_STEP_SUMMARY
-        
-        if [ "${{ steps.build.outcome }}" == "success" ]; then
-          echo "✅ **Docker image built and pushed successfully!**" >> $GITHUB_STEP_SUMMARY
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+        env:
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+
+      - name: Verify Docker Hub repository
+        run: |
+          echo "Verifying Docker Hub repository: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}"
+          echo "Username: ${{ secrets.DOCKER_USERNAME }}"
+          echo "Repository should exist at: https://hub.docker.com/r/${{ env.IMAGE_NAME }}"
+
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=ref,event=branch
+            type=ref,event=pr
+            type=sha,prefix={{branch}}-
+            type=raw,value=latest,enable={{is_default_branch}}
+            type=raw,value=prod-{{date 'YYYYMMDD-HHmmss'}},enable={{is_default_branch}}
+          labels: |
+            org.opencontainers.image.title=Acquisitions API
+            org.opencontainers.image.description=Express.js API with User CRUD operations
+            org.opencontainers.image.vendor=Okechukwy
+            org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
+            org.opencontainers.image.version=${{ github.ref_name }}
+            org.opencontainers.image.created=${{ github.event.head_commit.timestamp }}
+            org.opencontainers.image.revision=${{ github.sha }}
+
+      - name: Build and push Docker image
+        id: build
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Generate deployment summary
+        if: always()
+        run: |
+          echo "## 🐳 Docker Build and Push Results" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "### 📦 Published Image Details" >> $GITHUB_STEP_SUMMARY
-          echo "- **Registry**: \`${{ env.REGISTRY }}\`" >> $GITHUB_STEP_SUMMARY
-          echo "- **Image Name**: \`${{ env.IMAGE_NAME }}\`" >> $GITHUB_STEP_SUMMARY
-          echo "- **Full Image**: \`${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}\`" >> $GITHUB_STEP_SUMMARY
+
+          if [ "${{ steps.build.outcome }}" == "success" ]; then
+            echo "✅ **Docker image built and pushed successfully!**" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "### 📦 Published Image Details" >> $GITHUB_STEP_SUMMARY
+            echo "- **Registry**: \`${{ env.REGISTRY }}\`" >> $GITHUB_STEP_SUMMARY
+            echo "- **Image Name**: \`${{ env.IMAGE_NAME }}\`" >> $GITHUB_STEP_SUMMARY
+            echo "- **Full Image**: \`${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}\`" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "### 🏷️ Tags Applied" >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+            echo "${{ steps.meta.outputs.tags }}" >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "### 🏗️ Build Configuration" >> $GITHUB_STEP_SUMMARY
+            echo "- **Platforms**: \`linux/amd64\`, \`linux/arm64\`" >> $GITHUB_STEP_SUMMARY
+            echo "- **Cache**: GitHub Actions cache enabled" >> $GITHUB_STEP_SUMMARY
+            echo "- **Multi-platform**: ✅ Enabled" >> $GITHUB_STEP_SUMMARY
+            echo "- **Push**: ✅ Enabled" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "### 🚀 Deployment Commands" >> $GITHUB_STEP_SUMMARY
+            echo "To pull and run the latest image:" >> $GITHUB_STEP_SUMMARY
+            echo '```bash' >> $GITHUB_STEP_SUMMARY
+            echo "docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest" >> $GITHUB_STEP_SUMMARY
+            echo "docker run -p 3000:3000 ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest" >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ **Docker build failed**" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "### 🔍 Troubleshooting" >> $GITHUB_STEP_SUMMARY
+            echo "1. **Docker Hub Authentication Issues:**" >> $GITHUB_STEP_SUMMARY
+            echo "   - Ensure Docker Hub repository \`${{ env.IMAGE_NAME }}\` exists" >> $GITHUB_STEP_SUMMARY
+            echo "   - Verify \`DOCKER_USERNAME\` and \`DOCKER_PASSWORD\` secrets are correct" >> $GITHUB_STEP_SUMMARY
+            echo "   - Use Personal Access Token instead of password for better security" >> $GITHUB_STEP_SUMMARY
+            echo "   - Check repository permissions on Docker Hub" >> $GITHUB_STEP_SUMMARY
+            echo "2. **Repository Setup:**" >> $GITHUB_STEP_SUMMARY
+            echo "   - Create repository at: https://hub.docker.com/r/${{ env.IMAGE_NAME }}" >> $GITHUB_STEP_SUMMARY
+            echo "   - Ensure repository is public or you have push permissions" >> $GITHUB_STEP_SUMMARY
+            echo "3. **Build Issues:**" >> $GITHUB_STEP_SUMMARY
+            echo "   - Check Dockerfile syntax and dependencies" >> $GITHUB_STEP_SUMMARY
+            echo "   - Ensure all required files are present in the repository" >> $GITHUB_STEP_SUMMARY
+          fi
+
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "### 🏷️ Tags Applied" >> $GITHUB_STEP_SUMMARY
-          echo '```' >> $GITHUB_STEP_SUMMARY
-          echo "${{ steps.meta.outputs.tags }}" >> $GITHUB_STEP_SUMMARY
-          echo '```' >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "### 🏗️ Build Configuration" >> $GITHUB_STEP_SUMMARY
-          echo "- **Platforms**: \`linux/amd64\`, \`linux/arm64\`" >> $GITHUB_STEP_SUMMARY
-          echo "- **Cache**: GitHub Actions cache enabled" >> $GITHUB_STEP_SUMMARY
-          echo "- **Multi-platform**: ✅ Enabled" >> $GITHUB_STEP_SUMMARY
-          echo "- **Push**: ✅ Enabled" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "### 🚀 Deployment Commands" >> $GITHUB_STEP_SUMMARY
-          echo "To pull and run the latest image:" >> $GITHUB_STEP_SUMMARY
-          echo '```bash' >> $GITHUB_STEP_SUMMARY
-          echo "docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest" >> $GITHUB_STEP_SUMMARY
-          echo "docker run -p 3000:3000 ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest" >> $GITHUB_STEP_SUMMARY
-          echo '```' >> $GITHUB_STEP_SUMMARY
-        else
-          echo "❌ **Docker build failed**" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "### 🔍 Troubleshooting" >> $GITHUB_STEP_SUMMARY
-          echo "1. **Docker Hub Authentication Issues:**" >> $GITHUB_STEP_SUMMARY
-          echo "   - Ensure Docker Hub repository \`${{ env.IMAGE_NAME }}\` exists" >> $GITHUB_STEP_SUMMARY
-          echo "   - Verify \`DOCKER_USERNAME\` and \`DOCKER_PASSWORD\` secrets are correct" >> $GITHUB_STEP_SUMMARY
-          echo "   - Use Personal Access Token instead of password for better security" >> $GITHUB_STEP_SUMMARY
-          echo "   - Check repository permissions on Docker Hub" >> $GITHUB_STEP_SUMMARY
-          echo "2. **Repository Setup:**" >> $GITHUB_STEP_SUMMARY
-          echo "   - Create repository at: https://hub.docker.com/r/${{ env.IMAGE_NAME }}" >> $GITHUB_STEP_SUMMARY
-          echo "   - Ensure repository is public or you have push permissions" >> $GITHUB_STEP_SUMMARY
-          echo "3. **Build Issues:**" >> $GITHUB_STEP_SUMMARY
-          echo "   - Check Dockerfile syntax and dependencies" >> $GITHUB_STEP_SUMMARY
-          echo "   - Ensure all required files are present in the repository" >> $GITHUB_STEP_SUMMARY
-        fi
-        
-        echo "" >> $GITHUB_STEP_SUMMARY
-        echo "### 📋 Build Information" >> $GITHUB_STEP_SUMMARY
-        echo "- **Trigger**: ${{ github.event_name }}" >> $GITHUB_STEP_SUMMARY
-        echo "- **Branch**: \`${{ github.ref_name }}\`" >> $GITHUB_STEP_SUMMARY
-        echo "- **Commit**: \`${{ github.sha }}\`" >> $GITHUB_STEP_SUMMARY
-        echo "- **Workflow**: \`${{ github.workflow }}\`" >> $GITHUB_STEP_SUMMARY
-        echo "- **Run ID**: \`${{ github.run_id }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "### 📋 Build Information" >> $GITHUB_STEP_SUMMARY
+          echo "- **Trigger**: ${{ github.event_name }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Branch**: \`${{ github.ref_name }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "- **Commit**: \`${{ github.sha }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "- **Workflow**: \`${{ github.workflow }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "- **Run ID**: \`${{ github.run_id }}\`" >> $GITHUB_STEP_SUMMARY

@@ -46,7 +46,7 @@ Edit `.env.dev.local` with your Neon credentials:
 ```bash
 # .env.dev.local
 NEON_API_KEY=your_neon_api_key_here
-NEON_PROJECT_ID=your_neon_project_id_here  
+NEON_PROJECT_ID=your_neon_project_id_here
 PARENT_BRANCH_ID=your_parent_branch_id_here
 ARCJET_KEY=your_arcjet_key_here
 ```
@@ -157,26 +157,28 @@ The production setup includes:
 
 ### Development vs Production
 
-| Feature | Development | Production |
-|---------|-------------|------------|
-| Database | Neon Local (ephemeral branches) | Neon Cloud (direct connection) |
-| SSL | Self-signed certs allowed | Full SSL validation |
-| Logging | Debug level | Info level |
-| Hot Reload | Enabled | Disabled |
-| Resource Limits | None | CPU/Memory limited |
-| Security | Development mode | Hardened container |
+| Feature         | Development                     | Production                     |
+| --------------- | ------------------------------- | ------------------------------ |
+| Database        | Neon Local (ephemeral branches) | Neon Cloud (direct connection) |
+| SSL             | Self-signed certs allowed       | Full SSL validation            |
+| Logging         | Debug level                     | Info level                     |
+| Hot Reload      | Enabled                         | Disabled                       |
+| Resource Limits | None                            | CPU/Memory limited             |
+| Security        | Development mode                | Hardened container             |
 
 ### Environment Variables
 
 #### Required for Development
+
 ```bash
 NEON_API_KEY=          # Your Neon API key
-NEON_PROJECT_ID=       # Your Neon project ID  
+NEON_PROJECT_ID=       # Your Neon project ID
 PARENT_BRANCH_ID=      # Parent branch for ephemeral branches
 ARCJET_KEY=            # Arcjet protection key
 ```
 
 #### Required for Production
+
 ```bash
 DATABASE_URL=          # Direct Neon cloud connection string
 ARCJET_KEY=            # Production Arcjet key
@@ -250,8 +252,9 @@ docker-compose -f docker-compose.dev.yml down
 ### 2. Local Database Access
 
 Connect to your development database:
+
 - **Host**: `localhost`
-- **Port**: `5432`  
+- **Port**: `5432`
 - **User**: `neon`
 - **Password**: `npg`
 - **Database**: `neondb`
@@ -268,11 +271,13 @@ Source code is mounted in development mode:
 ## 🔒 Security Considerations
 
 ### Development
+
 - Uses self-signed certificates for Neon Local
 - Reduced security for development convenience
 - Debug information enabled
 
 ### Production
+
 - Full SSL certificate validation
 - Read-only container filesystem
 - Non-root user execution
@@ -282,14 +287,16 @@ Source code is mounted in development mode:
 ## 📚 API Documentation
 
 ### Health Check
+
 ```bash
 GET /health
 ```
 
 ### Authentication Endpoints
+
 ```bash
 POST /auth/sign-up
-POST /auth/sign-in  
+POST /auth/sign-in
 POST /auth/sign-out
 ```
 
@@ -305,6 +312,7 @@ POST /auth/sign-out
 ### Common Issues
 
 #### Neon Local Connection Failed
+
 ```bash
 # Check if Neon Local is running
 docker-compose -f docker-compose.dev.yml ps neon-local
@@ -314,6 +322,7 @@ docker-compose -f docker-compose.dev.yml logs neon-local
 ```
 
 #### Database Migration Errors
+
 ```bash
 # Reset development environment
 docker-compose -f docker-compose.dev.yml down -v
@@ -321,6 +330,7 @@ docker-compose -f docker-compose.dev.yml up -d
 ```
 
 #### Port Already in Use
+
 ```bash
 # Check what's using port 3000 or 5432
 netstat -tulpn | grep :3000
