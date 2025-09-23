@@ -18,7 +18,7 @@ FROM base AS runtime
 RUN apk add --no-cache dumb-init
 
 # Install ALL dependencies (including dev dependencies for drizzle-kit)
-RUN npm ci
+RUN npm install
 
 # Copy application code
 COPY --chown=nodejs:nodejs . .

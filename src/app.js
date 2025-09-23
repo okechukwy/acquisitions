@@ -6,6 +6,7 @@ import morgan from 'morgan';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import authRoutes from './routes/auth.routes.js';
+import usersRoutes from './routes/users.routes.js';
 import { users } from '#models/user.model.js';
 
 const app = express();
