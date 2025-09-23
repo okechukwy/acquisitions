@@ -16,7 +16,7 @@ A Node.js REST API built with Express, Drizzle ORM, and Neon Database, container
 
 - Docker and Docker Compose installed
 - Neon Database account ([sign up here](https://neon.tech))
-- Your Neon API credentials
+- Your Neon API credential
 
 ### Get Your Neon Credentials
 
